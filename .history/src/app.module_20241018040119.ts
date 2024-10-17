@@ -19,9 +19,9 @@ import { MockPrismaService } from './mock/mock-prisma.service';
     {
       provide: PrismaService,
       useFactory: (configService: ConfigService) => {
-        const useMockPrisma = configService.get('USE_MOCK_PRISMA');
-        console.log('Using Mock Prisma:', useMockPrisma);
-        return useMockPrisma === 'true' ? new MockPrismaService() : new PrismaService();
+        return configService.get('USE_MOCK_PRISMA') === 'true'
+          ? new MockPrismaService()
+          : new PrismaService();
       },
       inject: [ConfigService],
     },
