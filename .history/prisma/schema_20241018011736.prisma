@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int      @id @default(autoincrement())  // 자동 증가 기본 키
+  name    String
+  email   String   @unique                        // 이메일은 고유 값이어야 함
+  balance Float    @default(0)                    // 초기 값 0인 잔액
+  orders  Order[]                                // 사용자와 주문 간의 1:N 관계
+
+  createdAt DateTime @default(now())              // 생성 시간
+}
+
+model Product {
+  id      Int     @id @default(autoincrement())   // 자동 증가 기본 키
+  name    String
+  price   Float   @default(0)                     // 가격
+  stock   Int     @default(0)                     // 재고 수량
+
+  orderItems OrderItem[]                          // 제품과 주문 항목 간의 1:N 관계
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())   // 자동 증가 기본 키
+  user        User        @relation(fields: [userId], references: [id])  // 사용자와의 관계
+  userId      Int                                          // 외래 키
+  orderDate   DateTime   @default(now())                   // 주문 날짜
+  status      String                                      // 주문 상태 (예: "pending", "completed")
+  totalAmount Float      @default(0)                       // 총 주문 금액
+  items       OrderItem[]                                  // 주문과 주문 항목 간의 1:N 관계
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())  // 자동 증가 기본 키
+  order     Order    @relation(fields: [orderId], references: [id])  // 주문과의 관계
+  orderId   Int                                      // 외래 키
+  product   Product  @relation(fields: [productId], references: [id])  // 제품과의 관계
+  productId Int                                      // 외래 키
+  quantity  Int     @default(1)                     // 주문 수량
+  price     Float   @default(0)                     // 해당 상품 가격
+}
